@@ -104,17 +104,3 @@ final class tTests: XCTestCase {
         )
     }
 }
-
-/*
- 
- // Log a message
- t.log("📣 Test Log Message")
- 
- // Add an assertion to check if a value is nil
- let someValue: String? = nil
- try t.assert(isNil: someValue)
- 
- // Add an assertion to check if a value is not nil
- let someOtherValue: String? = "💠"
- try t.assert(isNotNil: someOtherValue)
- */
