@@ -26,4 +26,11 @@ public extension t {
         _ = description.map { log("🔘 Expecting \($0)") }
         try expectation()
     }
+    
+    /// Create a tested value that had the ability to throw an error.
+    static func tested<Output>(
+        _ test: () throws -> Output
+    ) throws -> Output {
+        try test()
+    }
 }

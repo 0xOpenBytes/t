@@ -103,4 +103,19 @@ final class tTests: XCTestCase {
             }
         )
     }
+    
+    func testTestedValue() throws {
+        XCTAssertNoThrow(
+            try t.assert(
+                t.tested { "Hello World!" },
+                isEqualTo: "Hello World!"
+            )
+        )
+    }
+    
+    func testTestedValueThow() throws {
+        XCTAssertThrowsError(
+            try t.tested { throw t.error(description: "Some Error") }
+        )
+    }
 }
