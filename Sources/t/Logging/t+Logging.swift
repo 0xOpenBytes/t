@@ -25,7 +25,7 @@ extension t {
     ) {
         let messagePrefix = suiteName.map { "❗️ (\($0)) " } ?? "❗️ "
         
-        guard let error = error as? tError else {
+        guard let error = error as? TestError else {
             log("\(messagePrefix)\(error.localizedDescription)")
             return
         }
