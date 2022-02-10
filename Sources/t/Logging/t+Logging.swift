@@ -1,4 +1,4 @@
-import Foundation
+import Foundation.FoundationErrors
 
 public extension t {
     /// Static logging function used for all logging in `t`
