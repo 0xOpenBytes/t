@@ -3,10 +3,15 @@ import Foundation.FoundationErrors
 public extension t {
     /// Emoji Enum used for logging
     struct Emojis {
+        /// String used for Tests
         public static var testing = "🧪"
+        /// String used for Errors
         public static var error = "❗️"
+        /// String used for any Success
         public static var success = "✅"
+        /// String used for Failures
         public static var failure = "❌"
+        /// String used for any Expectation
         public static var expectation = "🔘"
     }
     
