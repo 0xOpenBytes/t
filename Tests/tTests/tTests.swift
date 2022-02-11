@@ -107,15 +107,34 @@ final class tTests: XCTestCase {
     func testTestedValue() throws {
         XCTAssertNoThrow(
             try t.assert(
-                t.tested { "Hello World!" },
+                t.tested("that a String will be returned.") { "Hello World!" },
                 isEqualTo: "Hello World!"
             )
         )
     }
     
-    func testTestedValueThow() throws {
+    func testTestedValueThrow() throws {
         XCTAssertThrowsError(
-            try t.tested { throw t.error(description: "Some Error") }
+            try t.tested("that there will be an error thrown.") { throw t.error(description: "Some Error") }
+        )
+    }
+    
+    func testTestedValueNoDescription() throws {
+        XCTAssert(
+            t.suite {
+                let value: Int = try t.tested {
+                    let int = Int.random(in: 1 ... 100)
+                    
+                    try t.assert(int >= 1)
+                    
+                    return int
+                }
+                var sum = 5
+                
+                sum += value
+                
+                try t.assert(sum, isNotEqualTo: value)
+            }
         )
     }
 }

@@ -1,6 +1,15 @@
 import Foundation.FoundationErrors
 
 public extension t {
+    /// Emoji Enum used for logging
+    struct Emojis {
+        public static var testing = "🧪"
+        public static var error = "❗️"
+        public static var success = "✅"
+        public static var failure = "❌"
+        public static var expectation = "🔘"
+    }
+    
     /// Static logging function used for all logging in `t`
     static var logger: (String) -> Void = { print($0) }
     
@@ -23,7 +32,8 @@ extension t {
         error: Error,
         suiteName: String?
     ) {
-        let messagePrefix = suiteName.map { "❗️ (\($0)) " } ?? "❗️ "
+        let messagePrefix = suiteName
+            .map { "\(Emojis.error) (\($0)) " } ?? "\(Emojis.error) "
         
         guard let error = error as? TestError else {
             log("\(messagePrefix)\(error.localizedDescription)")
