@@ -103,4 +103,67 @@ final class tTests: XCTestCase {
             }
         )
     }
+    
+    func testTestedValue() throws {
+        XCTAssertNoThrow(
+            try t.assert(
+                t.tested("that a String will be returned.") { "Hello World!" },
+                isEqualTo: "Hello World!"
+            )
+        )
+    }
+    
+    func testTestedValueThrow() throws {
+        XCTAssertThrowsError(
+            try t.tested("that there will be an error thrown.") { throw t.error(description: "Some Error") }
+        )
+    }
+    
+    func testTestedValueNoDescription() throws {
+        XCTAssert(
+            t.suite {
+                let value: Int = try t.tested {
+                    let int = Int.random(in: 1 ... 100)
+                    
+                    try t.assert(int >= 1)
+                    
+                    return int
+                }
+                var sum = 5
+                
+                sum += value
+                
+                try t.assert(sum, isNotEqualTo: value)
+            }
+        )
+    }
 }
+
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+
+extension tTests {
+    func testEventuallyExpect() throws {
+        let time = Int(Date().timeIntervalSince1970)
+        XCTAssert(
+            t.suite {
+                try t.async(
+                    "Wait 1 second",
+                    expect: {
+                        let completionTime = Int(Date().timeIntervalSince1970)
+                        try t.assert(time, isEqualTo: completionTime - 1)
+                    },
+                    eventually: { completion in
+                        t.log("Wait 1 second")
+                        DispatchQueue.global().async {
+                            sleep(1)
+                            completion()
+                            t.log("Done waiting!")
+                        }
+                    }
+                )
+            }
+        )
+    }
+}
+
+#endif

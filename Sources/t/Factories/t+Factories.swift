@@ -6,7 +6,7 @@ public extension t {
         functionName: String = #function,
         fileName: String = #file
     ) -> Error {
-        tError(
+        TestError(
             description: description,
             lineNumber: lineNumber,
             functionName: functionName,

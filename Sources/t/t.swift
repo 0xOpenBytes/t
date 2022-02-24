@@ -3,10 +3,10 @@ public enum t {
     // MARK: - Internal Data Types
     
     /// Simple Error with a description stating the failure
-    struct tError: Error {
-        let description: String
-        let lineNumber: Int
-        let functionName: String
-        let fileName: String
+    public struct TestError: Error {
+        public let description: String
+        public let lineNumber: Int
+        public let functionName: String
+        public let fileName: String
     }
 }
