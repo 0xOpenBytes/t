@@ -50,3 +50,28 @@ public extension t {
         _ test: () throws -> Output
     ) throws -> Output { try test() }
 }
+
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+
+import Dispatch
+
+public extension t {
+    static func `async`(
+        _ description: String? = nil,
+        expect: () throws -> Void,
+        eventually: (_ completion: @escaping () -> Void) throws -> Void
+    ) throws {
+        let sema = DispatchSemaphore(value: 0)
+        let completion: () -> Void = { sema.signal() }
+        
+        try t.expect(description) {
+            try eventually(completion)
+        }
+        
+        sema.wait()
+        
+        try expect()
+    }
+}
+
+#endif

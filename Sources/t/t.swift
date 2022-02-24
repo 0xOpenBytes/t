@@ -4,9 +4,9 @@ public enum t {
     
     /// Simple Error with a description stating the failure
     public struct TestError: Error {
-        let description: String
-        let lineNumber: Int
-        let functionName: String
-        let fileName: String
+        public let description: String
+        public let lineNumber: Int
+        public let functionName: String
+        public let fileName: String
     }
 }

@@ -138,3 +138,32 @@ final class tTests: XCTestCase {
         )
     }
 }
+
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+
+extension tTests {
+    func testEventuallyExpect() throws {
+        let time = Int(Date().timeIntervalSince1970)
+        XCTAssert(
+            t.suite {
+                try t.async(
+                    "Wait 1 second",
+                    expect: {
+                        let completionTime = Int(Date().timeIntervalSince1970)
+                        try t.assert(time, isEqualTo: completionTime - 1)
+                    },
+                    eventually: { completion in
+                        t.log("Wait 1 second")
+                        DispatchQueue.global().async {
+                            sleep(1)
+                            completion()
+                            t.log("Done waiting!")
+                        }
+                    }
+                )
+            }
+        )
+    }
+}
+
+#endif
