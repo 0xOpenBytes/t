@@ -8,7 +8,7 @@
 
 ## Where can `t` be used?
 
-`t` can be used to test quickly inside a function to make sure something is working as expected. `t` can also be used in unit test if wanted.
+`t` can be used to test quickly inside a function to make sure something is working as expected. `t` can also be used in unit tests if wanted.
 
 ## Examples
 
