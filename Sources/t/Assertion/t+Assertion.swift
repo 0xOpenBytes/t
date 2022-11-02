@@ -8,6 +8,7 @@ public extension t {
         fileName: String = #file
     ) throws {
         let defaultMessage = "Asserted condition was false (When it should be true)."
+        
         guard condition else {
             throw t.error(
                 description: message ?? defaultMessage,
@@ -27,6 +28,7 @@ public extension t {
         fileName: String = #file
     ) throws {
         let defaultMessage = "Asserted condition was true (When it should be false)."
+
         guard condition == false else {
             throw t.error(
                 description: message ?? defaultMessage,
@@ -47,6 +49,7 @@ public extension t {
         fileName: String = #file
     ) throws {
         let defaultMessage = "The first value (\(firstValue)) was not equal to the second (\(secondValue)) (When it should be equal to)."
+
         guard firstValue == secondValue else {
             throw t.error(
                 description: message ?? defaultMessage,
@@ -67,6 +70,7 @@ public extension t {
         fileName: String = #file
     ) throws {
         let defaultMessage = "The first value (\(firstValue)) was equal to the second (\(secondValue)) (When it should be not equal to)."
+
         guard firstValue != secondValue else {
             throw t.error(
                 description: message ?? defaultMessage,
@@ -85,15 +89,13 @@ public extension t {
         functionName: String = #function,
         fileName: String = #file
     ) throws {
-        let defaultMessage = "The value was nil (When it should be not nil)."
-        guard value != nil else {
-            throw t.error(
-                description: message ?? defaultMessage,
-                lineNumber: lineNumber,
-                functionName: functionName,
-                fileName: fileName
-            )
-        }
+        try unwrap(
+            value,
+            message: message,
+            lineNumber: lineNumber,
+            functionName: functionName,
+            fileName: fileName
+        )
     }
     
     /// Assert that the value is nil.
@@ -105,6 +107,7 @@ public extension t {
         fileName: String = #file
     ) throws {
         let defaultMessage = "The value was not nil (When it should be nil)."
+
         guard value == nil else {
             throw t.error(
                 description: message ?? defaultMessage,
@@ -114,4 +117,123 @@ public extension t {
             )
         }
     }
+
+    /// Assert that the closure should throw
+    static func assertThrows<Value>(
+        _ closure: @autoclosure () throws -> Value,
+        message: String? = nil,
+        lineNumber: Int = #line,
+        functionName: String = #function,
+        fileName: String = #file
+    ) throws {
+        let defaultMessage = "The closure didn't throw (When it should throw)."
+
+        do {
+            let _ = try closure()
+            throw t.error(
+                description: message ?? defaultMessage,
+                lineNumber: lineNumber,
+                functionName: functionName,
+                fileName: fileName
+            )
+        } catch {
+            return
+        }
+    }
+
+    /// Assert that the closure should not throw
+    static func assertNoThrows<Value>(
+        _ closure: @autoclosure () throws -> Value,
+        message: String? = nil,
+        lineNumber: Int = #line,
+        functionName: String = #function,
+        fileName: String = #file
+    ) throws {
+        let defaultMessage = "The closure thrww (When it shouldn't throw)."
+
+        do {
+            let _ = try closure()
+        } catch {
+            throw t.error(
+                description: message ?? defaultMessage,
+                lineNumber: lineNumber,
+                functionName: functionName,
+                fileName: fileName
+            )
+        }
+    }
+
+    ///
+    @discardableResult
+    static func unwrap<Value>(
+        _ value: Value?,
+        message: String? = nil,
+        lineNumber: Int = #line,
+        functionName: String = #function,
+        fileName: String = #file
+    ) throws -> Value {
+        let defaultMessage = "The value was nil (When it should be not nil)."
+
+        guard let value = value else {
+            throw t.error(
+                description: message ?? defaultMessage,
+                lineNumber: lineNumber,
+                functionName: functionName,
+                fileName: fileName
+            )
+        }
+
+        return value
+    }
 }
+
+#if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
+
+public extension t {
+    /// Assert that the closure should throw
+    static func assertThrows<Value>(
+        _ closure: @autoclosure () async throws -> Value,
+        message: String? = nil,
+        lineNumber: Int = #line,
+        functionName: String = #function,
+        fileName: String = #file
+    ) async throws {
+        let defaultMessage = "The closure didn't throw (When it should throw)."
+
+        do {
+            let _ = try await closure()
+            throw t.error(
+                description: message ?? defaultMessage,
+                lineNumber: lineNumber,
+                functionName: functionName,
+                fileName: fileName
+            )
+        } catch {
+            return
+        }
+    }
+
+    /// Assert that the closure should not throw
+    static func assertNoThrows<Value>(
+        _ closure: @autoclosure () async throws -> Value,
+        message: String? = nil,
+        lineNumber: Int = #line,
+        functionName: String = #function,
+        fileName: String = #file
+    ) async throws {
+        let defaultMessage = "The closure thrww (When it shouldn't throw)."
+
+        do {
+            let _ = try await closure()
+        } catch {
+            throw t.error(
+                description: message ?? defaultMessage,
+                lineNumber: lineNumber,
+                functionName: functionName,
+                fileName: fileName
+            )
+        }
+    }
+}
+
+#endif

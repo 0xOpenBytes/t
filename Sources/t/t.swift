@@ -1,7 +1,5 @@
 /// A simple way to test expectations using functions and errors
 public enum t {
-    // MARK: - Internal Data Types
-    
     /// Simple Error with a description stating the failure
     public struct TestError: Error {
         public let description: String

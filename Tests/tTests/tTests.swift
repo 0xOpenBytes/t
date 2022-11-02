@@ -11,27 +11,35 @@ final class tTests: XCTestCase {
                     try t.assert(true)
                     try t.assert(2, isEqualTo: 2)
                 }
-                
+
                 // Add an assertion that asserting false is not true
                 try t.assert(notTrue: false)
-                
+
+                try t.assertNoThrows { try t.assert(true) }
+
+                try t.assertThrows { try t.assert(false) }
+
+                try t.assertThrows(t.assertNoThrows(t.assert(false)))
+
+                try t.assertNoThrows(t.assertThrows(t.assert(true)))
+
                 // Add an assertion that "Hello" is not equal to "World"
                 try t.assert("Hello", isNotEqualTo: "World")
-                
+
                 // Log a message
                 t.log("📣 Test Log Message")
-                
+
                 // Log a t.error
                 t.log(error: t.error(description: "Mock Error"))
-                
+
                 // Log any error
-                struct SomeError: Error { }
+                struct SomeError: LocalizedError { }
                 t.log(error: SomeError())
-                
+
                 // Add an assertion to check if a value is nil
                 let someValue: String? = nil
                 try t.assert(isNil: someValue)
-                
+
                 // Add an assertion to check if a value is not nil
                 let someOtherValue: String? = "💠"
                 try t.assert(isNotNil: someOtherValue)
@@ -142,27 +150,55 @@ final class tTests: XCTestCase {
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 
 extension tTests {
-    func testEventuallyExpect() throws {
-        let time = Int(Date().timeIntervalSince1970)
-        XCTAssert(
-            t.suite {
-                try t.async(
-                    "Wait 1 second",
-                    expect: {
-                        let completionTime = Int(Date().timeIntervalSince1970)
-                        try t.assert(time, isEqualTo: completionTime - 1)
-                    },
-                    eventually: { completion in
-                        t.log("Wait 1 second")
-                        DispatchQueue.global().async {
-                            sleep(1)
-                            completion()
-                            t.log("Done waiting!")
-                        }
-                    }
-                )
+    func testAsyncExample() async throws {
+        // Create Test Suite
+        let result = await t.suite {
+            // Add an expectation that asserting true is true and that 2 is equal to 2
+            try t.expect {
+                try t.assert(true)
+                try t.assert(2, isEqualTo: 2)
             }
-        )
+
+            let _ = try await t.tested("async tested") {
+                let value = Double.pi
+                try t.assert(notTrue: value < 3)
+                try await t.assertNoThrows { try t.assert(true) }
+                return value
+            }
+
+            try await t.expect {
+                try await t.assertNoThrows { try t.assert(true) }
+
+                try await t.assertThrows { try t.assert(false) }
+
+                try await t.assertThrows(await t.assertNoThrows(t.assert(false)))
+
+                try await t.assertNoThrows(await t.assertThrows(t.assert(true)))
+            }
+
+            // Add an assertion that "Hello" is not equal to "World"
+            try t.assert("Hello", isNotEqualTo: "World")
+
+            // Log a message
+            t.log("📣 Test Log Message")
+
+            // Log a t.error
+            t.log(error: t.error(description: "Mock Error"))
+
+            // Log any error
+            struct SomeError: LocalizedError { }
+            t.log(error: SomeError())
+
+            // Add an assertion to check if a value is nil
+            let someValue: String? = nil
+            try t.assert(isNil: someValue)
+
+            // Add an assertion to check if a value is not nil
+            let someOtherValue: String? = "💠"
+            try t.assert(isNotNil: someOtherValue)
+        }
+
+        XCTAssert(result)
     }
 }
 

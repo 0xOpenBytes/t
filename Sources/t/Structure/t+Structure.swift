@@ -33,16 +33,19 @@ public extension t {
         _ test: () throws -> Output
     ) throws -> Output {
         log("\(Emojis.testing) Testing \(description)")
-        
+
+        let value: Output
+
         do {
-            let value = try test()
+            value = try test()
             log("\(Emojis.success) Test \(description) Passed!")
-            return value
         } catch {
             log(error: error)
             log("\(Emojis.failure) Test \(description) Failed!")
             throw error
         }
+
+        return value
     }
     
     /// Create a tested value that had the ability to throw an error.
@@ -53,25 +56,69 @@ public extension t {
 
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 
-import Dispatch
-
 public extension t {
-    static func `async`(
-        _ description: String? = nil,
-        expect: () throws -> Void,
-        eventually: (_ completion: @escaping () -> Void) throws -> Void
-    ) throws {
-        let sema = DispatchSemaphore(value: 0)
-        let completion: () -> Void = { sema.signal() }
-        
-        try t.expect(description) {
-            try eventually(completion)
+    /// Create a test suite with multiple steps, expectations, and asserts.
+    @discardableResult
+    static func suite(
+        named name: String? = nil,
+        _ test: () async throws -> Void
+    ) async -> Bool {
+        var result: Error?
+
+        do {
+            try await test()
+        } catch {
+            result = error
         }
-        
-        sema.wait()
-        
-        try expect()
+
+        return suite(named: name) {
+            try assert(isNil: result)
+        }
     }
+
+    /// Create an expectation with one or multiple assertions.
+    static func expect(
+        _ description: String? = nil,
+        expectation: () async throws -> Void
+    ) async throws {
+        var result: Error?
+
+        do {
+            try await expectation()
+        } catch {
+            result = error
+        }
+
+        return try expect(description) {
+            try assert(isNil: result)
+        }
+    }
+
+    /// Create a tested value that had the ability to throw an error.
+    static func tested<Output>(
+        _ description: String,
+        _ test: () async throws -> Output
+    ) async throws -> Output {
+        var output: Output?
+        var result: Error?
+
+        do {
+            output = try await test()
+        } catch {
+            result = error
+        }
+
+        return try tested(description) {
+            try assert(isNil: result)
+
+            return try unwrap(output)
+        }
+    }
+
+    /// Create a tested value that had the ability to throw an error.
+    static func tested<Output>(
+        _ test: () async throws -> Output
+    ) async throws -> Output { try await test() }
 }
 
 #endif
