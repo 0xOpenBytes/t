@@ -72,7 +72,9 @@ public extension t {
         }
 
         return suite(named: name) {
-            try assert(isNil: result)
+            if let result = result {
+                throw result
+            }
         }
     }
 
@@ -90,7 +92,9 @@ public extension t {
         }
 
         return try expect(description) {
-            try assert(isNil: result)
+            if let result = result {
+                throw result
+            }
         }
     }
 
@@ -109,7 +113,9 @@ public extension t {
         }
 
         return try tested(description) {
-            try assert(isNil: result)
+            if let result = result {
+                throw result
+            }
 
             return try unwrap(output)
         }
